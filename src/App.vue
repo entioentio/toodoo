@@ -1,5 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
+  <img alt="Vue logo" src="./assets/logo.png" />asd
 <!--  <HelloWorld msg="Hello Vue 3 + Vite" />-->
   <TaskList/>
 </template>
@@ -8,8 +8,11 @@
 /*import HelloWorld from './components/HelloWorld.vue'*/
 
 import TaskList from "./components/TaskList.vue";
+import {getTooDoos} from "./api";
 export default {
   setup () {
+    debugger
+    getTooDoos();
     return { TaskList }
   }
 }
