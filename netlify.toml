@@ -2,6 +2,7 @@
 [build]
     command = "yarn build"
     functions = "netlify/functions"
+    environment = {NODE_VERSION = '14'}
     publish = "dist"
 
 [[redirects]]

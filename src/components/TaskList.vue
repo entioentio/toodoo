@@ -1,24 +1,28 @@
 <template>
-  <div v-for="task in tasks">{{ task.name }}</div>
-  <input v-model.trim="newTask" @keypress.enter="addTask">
+  <div class="flex justify-center content-end bg-gray-100">
+    <swim-lane label="Todo" :status="0" @create-task="" @remove-task="removeTask"/>
+    <swim-lane label="Doing" :status="1" @create-task=""/>
+    <swim-lane label="Done" :status="2" @create-task=""/>
+  </div>
 </template>
 
 <script>
-import { reactive, ref } from 'vue';
+import useTasks from "../composables/useTasks.js";
+import SwimLane from "./SwimLane.vue";
 
 export default {
-  setup() {
-    const tasks = reactive([{name: 'test todo', status: 0}, {name: 'test doing', status: 1}]);
-    const newTask = ref('');
-
-    function addTask (name) {
-      tasks.push({ name: newTask.value, status: 0});
+  async setup() {
+    function removeTask (id) {
+      debugger
     }
 
+    const { loadTasks, tasks } = useTasks();
+    await loadTasks();
+
     return {
-      newTask,
+      SwimLane,
       tasks,
-      addTask
+      removeTask
     }
   }
 }

@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 3005,
-    open: true,
+    open: false,
     proxy: {
       '/api': {
         target: 'http://localhost:8898/.netlify/functions',
