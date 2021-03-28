@@ -7,6 +7,8 @@ const dbClient = new Client({
 	secret: import.meta.env.VITE_FAUNADB_SERVER_SECRET
 });
 
+const now = () => Math.floor(Date.now() / 1000)
+
 export const getActiveTooDoos = () => {
 	return new Promise((resolve, reject) => {
 		dbClient.query(
@@ -32,12 +34,12 @@ export const createTooDoo = ({title, status = 0}) => {
 				query.Collection('taasks'), {
 					data: {
 						title,
-						status
+						status,
+						created_at: now()
 					}
 				}
 			)
 		).then(response => {
-			console.log(response)
 			resolve(response)
 		}).catch(error => {
 			reject(error)
@@ -50,7 +52,7 @@ export const removeTooDoo = (id) => {
 		dbClient.query(
 			query.Update(
 				query.Ref(query.Collection('taasks'), id),
-				{ data: { 'deleted_at': Math.floor(Date.now() / 1000) } }
+				{ data: { 'deleted_at': now() } }
 			)
 		).then(response => {
 			resolve(response)
@@ -65,7 +67,10 @@ export const updateTooDoo = ({id, value, field}) => {
 		dbClient.query(
 			query.Update(
 				query.Ref(query.Collection('taasks'), id),
-				{ data: { [field]: value } }
+				{ data: {
+					[field]: value,
+					updated_at: now()
+				} }
 			)
 		).then(response => {
 			resolve(response)

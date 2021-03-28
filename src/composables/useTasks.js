@@ -5,6 +5,12 @@ const sourceTasks = reactive({
 	list: []
 });
 
+function uuidv4() {
+	return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+		(c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+	);
+}
+
 export default function useTasks() {
 	const tasks = computed(() => {
 		return sourceTasks.list.reduce((acc, task) => {
@@ -28,9 +34,17 @@ export default function useTasks() {
 	}
 
 	function createTask (title, status) {
-		const newTask = {title, status};
+		const newTask = reactive({ id: uuidv4(), title, status });
 		sourceTasks.list.push(newTask);
-		createTooDoo(newTask);
+
+		createTooDoo({title, status})
+			.then(({ data, ref }) => {
+				newTask.id = ref.id;
+				newTask.created_at = data.created_at;
+			}).catch(error => {
+				// TODO: saving task failed. Show error, retry?
+				//reject(error)
+			})
 	}
 
 	function removeTask (id) {
