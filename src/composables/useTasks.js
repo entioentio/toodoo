@@ -1,5 +1,5 @@
 import {computed, reactive} from 'vue';
-import { getActiveTooDoos, createTooDoo, removeTooDoo, updateTooDoo } from "@/api";
+import { getActiveTooDoos, createTooDoo, removeTooDoo, updateTooDoo, resortTooDoos } from "@/api";
 
 const sourceTasks = reactive({
 	list: []
@@ -13,7 +13,9 @@ function uuidv4() {
 
 export default function useTasks() {
 	const tasks = computed(() => {
-		return sourceTasks.list.reduce((acc, task) => {
+		return sourceTasks.list
+			.sort((a, b) => a.sort - b.sort)
+			.reduce((acc, task) => {
 			if (!acc[task.status]) {
 				acc[task.status] = [];
 			}
@@ -34,10 +36,16 @@ export default function useTasks() {
 	}
 
 	function createTask (title, status) {
-		const newTask = reactive({ id: uuidv4(), title, status });
+		const tasksPool = tasks.value[status];
+
+		const sort = tasksPool
+			? tasksPool.sort((a, b) => b.sort - a.sort)[0].sort + 100
+			: 0;
+
+		const newTask = reactive({ id: uuidv4(), title, status, sort });
 		sourceTasks.list.push(newTask);
 
-		createTooDoo({title, status})
+		createTooDoo({title, status, sort})
 			.then(({ data, ref }) => {
 				newTask.id = ref.id;
 				newTask.created_at = data.created_at;
@@ -56,11 +64,24 @@ export default function useTasks() {
 		updateTooDoo({id, value, field})
 	}
 
+	function resortTasks (tasksToUpdate) {
+		const payload = tasksToUpdate.map((item, index) => [item.id, index * 100])
+		resortTooDoos(payload);
+
+		payload.forEach((item) => {
+			const match = sourceTasks.list.find(sourceItem => item[0] === sourceItem.id);
+			if (!match) return;
+
+			match.sort = item[1];
+		})
+	}
+
 	return {
 		tasks,
 		loadTasks,
 		createTask,
 		removeTask,
-		updateTask
+		updateTask,
+		resortTasks
 	}
 }

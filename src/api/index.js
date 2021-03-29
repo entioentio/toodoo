@@ -1,9 +1,9 @@
 import { Client, query } from 'faunadb';
-//const query = Client.query;
+const q = query;
 
 window.global = window;
 
-const dbClient = new Client({
+const client = new Client({
 	secret: import.meta.env.VITE_FAUNADB_SERVER_SECRET
 });
 
@@ -11,12 +11,12 @@ const now = () => Math.floor(Date.now() / 1000)
 
 export const getActiveTooDoos = () => {
 	return new Promise((resolve, reject) => {
-		dbClient.query(
-			query.Map(
-				query.Paginate(
-					query.Match(query.Index('active_taasks'), true)
+		client.query(
+			q.Map(
+				q.Paginate(
+					q.Match(q.Index('active_taasks'), true)
 				),
-				query.Lambda('x', query.Get(query.Var('x')))
+				q.Lambda('x', q.Get(q.Var('x')))
 			)
 		).then(response => {
 			console.log(response)
@@ -27,14 +27,15 @@ export const getActiveTooDoos = () => {
 	})
 }
 
-export const createTooDoo = ({title, status = 0}) => {
+export const createTooDoo = ({title, status, sort}) => {
 	return new Promise((resolve, reject) => {
-		dbClient.query(
-			query.Create(
-				query.Collection('taasks'), {
+		client.query(
+			q.Create(
+				q.Collection('taasks'), {
 					data: {
 						title,
 						status,
+						sort,
 						created_at: now()
 					}
 				}
@@ -49,9 +50,9 @@ export const createTooDoo = ({title, status = 0}) => {
 
 export const removeTooDoo = (id) => {
 	return new Promise((resolve, reject) => {
-		dbClient.query(
-			query.Update(
-				query.Ref(query.Collection('taasks'), id),
+		client.query(
+			q.Update(
+				q.Ref(query.Collection('taasks'), id),
 				{ data: { 'deleted_at': now() } }
 			)
 		).then(response => {
@@ -64,13 +65,34 @@ export const removeTooDoo = (id) => {
 
 export const updateTooDoo = ({id, value, field}) => {
 	return new Promise((resolve, reject) => {
-		dbClient.query(
-			query.Update(
-				query.Ref(query.Collection('taasks'), id),
+		client.query(
+			q.Update(
+				q.Ref(query.Collection('taasks'), id),
 				{ data: {
 					[field]: value,
 					updated_at: now()
 				} }
+			)
+		).then(response => {
+			resolve(response)
+		}).catch(error => {
+			reject(error)
+		})
+	})
+}
+
+export const resortTooDoos = input => {
+	return new Promise((resolve, reject) => {
+		client.query(
+			q.Map(
+				input,
+				q.Lambda(
+					['id', 'order'],
+					q.Update(
+						q.Ref(query.Collection('taasks'), q.Var('id')),
+						{data: {'sort': q.Var('order')}}
+					)
+				)
 			)
 		).then(response => {
 			resolve(response)
