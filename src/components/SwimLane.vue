@@ -1,8 +1,11 @@
 <template>
   <section class="m-2 flex-shrink flex flex-col" :title="label">
-    <header class="m-3 font-medium text-xl flex-grow-0" v-if="label" :title="label">{{ label }}</header>
+    <header class="m-3 font-medium text-xl flex-grow-0"><slot/></header>
     <div class="m-3 relative flex-grow-0" :title="`Create new item with status ${label}`">
-      <input class="bg-transparent hover:bg-white focus:bg-white rounded-sm p-2 shadow-sm placeholder-gray-500 w-full outline-none focus:ring-2 focus:ring-blue-600" placeholder="Add toodoo..." v-model.trim="newTask" @keypress.enter="submitTask" title="Item content"/>
+      <div class="grid p-2 bg-transparent focus-within:bg-white rounded-sm shadow-sm hover:bg-white focus-within:ring-2 focus-within:ring-blue-600">
+        <div class="invisible row-start-1	row-end-2	col-start-1 col-end-2 whitespace-pre-wrap overflow-y-visible" v-html="`${newTask}&nbsp;`"/>
+        <textarea rows="1" class="resize-none row-start-1 row-end-2 col-start-1 col-end-2 bg-transparent placeholder-gray-500 w-full outline-none" placeholder="Add toodoo..." v-model="newTask" @keypress.ctrl.enter="submitTask" title="Item content"/>
+      </div>
       <button @click="submitTask" class="focus:outline-none text-gray-400 absolute right-2 top-3" aria-label="Submit">
         <svg height="18" width="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" x="0px" y="0px"><title>UI</title><g data-name="Layer 3"><path d="M12,1A11,11,0,1,0,23,12,11.013,11.013,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9.01,9.01,0,0,1,12,21Z"></path><polygon points="13 7 11 7 11 11 7 11 7 13 11 13 11 17 13 17 13 13 17 13 17 11 13 11 13 7"></polygon></g></svg>
       </button>
@@ -31,10 +34,6 @@ import draggable from 'vuedraggable'
 
 export default {
   props: {
-    label: {
-      type: String,
-      default: ''
-    },
     status: {
       type: Number,
       required: true
@@ -75,7 +74,8 @@ export default {
       label,
       newTask,
       submitTask,
-      SingleTask
+      SingleTask,
+      moveCallback
     }
   }
 }
