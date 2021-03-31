@@ -7,9 +7,17 @@
         <svg height="18" width="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" x="0px" y="0px"><title>UI</title><g data-name="Layer 3"><path d="M12,1A11,11,0,1,0,23,12,11.013,11.013,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9.01,9.01,0,0,1,12,21Z"></path><polygon points="13 7 11 7 11 11 7 11 7 13 11 13 11 17 13 17 13 13 17 13 17 11 13 11 13 7"></polygon></g></svg>
       </button>
     </div>
-    <draggable v-model="currentContextTasks" item-key="id" group="tasks" class="flex-grow" :sort="true">
+
+    <draggable
+        v-model="currentContextTasks"
+        item-key="id"
+        group="tasks"
+        class="flex-grow"
+        :sort="true"
+        @change="moveCallback"
+    >
       <template #item="{ element }">
-        <div><single-task class="m-3" :title="element.title + ' / ' + element.sort" :id="element.id"/></div>
+        <div><single-task class="m-3" :title="element.title" :id="element.id"/></div>
       </template>
     </draggable>
   </section>
@@ -37,7 +45,7 @@ export default {
 
     const newTask = ref('');
 
-    const { tasks, createTask, resortTasks } = useTasks();
+    const { tasks, createTask, resortTasks, updateTask } = useTasks();
 
     const currentContextTasks = computed({
       get: () => {
@@ -51,6 +59,13 @@ export default {
     function submitTask() {
       createTask(newTask.value, status.value);
       newTask.value = '';
+    }
+
+    function moveCallback({ added }) {
+      if (added) {
+        added.element.status = status.value;
+        updateTask(added.element.id, status.value, 'status');
+      }
     }
 
     return {

@@ -30,10 +30,7 @@ export default {
       default: ''
     }
   },
-  emits: {
-    removeTask: null
-  },
-  async setup(props, { emit }) {
+  async setup(props) {
     const { id, title } = toRefs(props);
 
     const currentTitle = ref(title.value);

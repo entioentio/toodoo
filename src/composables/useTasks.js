@@ -1,5 +1,7 @@
 import {computed, reactive} from 'vue';
-import { getActiveTooDoos, createTooDoo, removeTooDoo, updateTooDoo, resortTooDoos } from "@/api";
+import { getActiveTooDoos, createTooDoo, removeTooDoo, updateTooDoo, resortTooDoos } from '@/api';
+
+const swimLanesCount = 3;
 
 const sourceTasks = reactive({
 	list: []
@@ -13,17 +15,18 @@ function uuidv4() {
 
 export default function useTasks() {
 	const tasks = computed(() => {
+		const defaultList = [...new Array(swimLanesCount)].map(() => ([]));
+
 		return sourceTasks.list
 			.sort((a, b) => a.sort - b.sort)
 			.reduce((acc, task) => {
-			if (!acc[task.status]) {
-				acc[task.status] = [];
-			}
+				if (!acc[task.status]) {
+					acc[task.status] = [];
+				}
 
-			acc[task.status].unshift(task)
-
-			return acc
-		}, [])
+				acc[task.status].unshift(task)
+				return acc
+			}, defaultList)
 	});
 
 	async function loadTasks () {
