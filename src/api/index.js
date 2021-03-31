@@ -1,6 +1,10 @@
 import { Client, query } from 'faunadb';
 const q = query;
 
+if (typeof window.global === 'undefined') {
+	window.global = window;
+}
+
 const client = new Client({
 	secret: import.meta.env.VITE_FAUNADB_SERVER_SECRET
 });
